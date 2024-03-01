@@ -46,7 +46,7 @@ export const getProduct = async (dashboardId: string, productId: string) =>  {
         // return data as Product;
 
         if(data) {
-            await redis.setex(`product:${productId}`, 1800, JSON.stringify(data));
+            await redis.set(`product:${productId}`, JSON.stringify(data), 'EX', 3600);
     return data as Product;
 
         }
@@ -104,7 +104,7 @@ export const getProductsByStoreId = async (storeId: string) => {
 
         })) as Product[];
 
-        await redis.setex(`products:${storeId}`, 1800, JSON.stringify(data));
+        await redis.set(`products:${storeId}`, JSON.stringify(data), 'EX', 60);
 
 
 

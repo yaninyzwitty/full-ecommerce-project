@@ -49,4 +49,16 @@ export type ProductTableData = {
 
 
 
+};
+
+
+export type Category = {
+    categoryId : string;
+    name : string;
+    description: string;
+    categoryThumbnail: string;
+    tags: string[];
+    starredCategories: string[];
+    createdAt: string | Date;
+    updatedAt: string | Date;
 }

@@ -41,49 +41,17 @@ CREATE TABLE product_by_seller (
         updated_at TIMESTAMP
 );
 
-CREATE STREAM inventory_stream (
-    id VARCHAR KEY,
-    item VARCHAR,
-    quantity INTEGER
-) WITH (
-    VALUE_FORMAT = 'JSON',
-    KAFKA_TOPIC = 'inventory',
-    PARTITIONS = 6
+CREATE TABLE IF NOT EXISTS category_by_seller (
+    categoryId UUID PRIMARY KEY,
+    name TEXT,
+    description TEXT,
+    category_thumnail TEXT,
+    category_tags
+    SET
+        < TEXT >,
+        starred_categories
+    SET
+        < TEXT >,
+        created_at TIMESTAMP,
+        updated_at TIMESTAMP
 );
-
-CREATE TABLE inventory_stream_table WITH (KAFKA_TOPIC = 'inventory_table') AS
-SELECT
-    item,
-    SUM(quantity) AS item_quantity
-FROM
-    inventory_stream
-GROUP BY
-    item EMIT CHANGES;
-
--- Removing the 'email' column
-ALTER TABLE
-    product_by_seller DROP product_by_seller;
-
--- Adding the 'phone_number' column
-ALTER TABLE
-    product_by_seller
-ADD
-    subcategorys
-set
-    < text >;
-
-ALTER TABLE
-    product_by_seller DROP color;
-
--- Adding the 'phone_number' column
-ALTER TABLE
-    product_by_seller
-ADD
-    colors
-set
-    < text >;
-
-ALTER TABLE
-    product_by_seller
-ADD
-    is_published boolean

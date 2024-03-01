@@ -1,10 +1,10 @@
 "use server";
 
 import cassandraDb from '@/db';
+import { redis } from '@/redis';
 
 import { ProductCategorySchema, ProductColorSchema, ProductDescriptionSchema, ProductImageSchema, ProductNameSchema, ProductPriceSchema } from '@/schemas';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import * as z from 'zod';
 
 
@@ -74,6 +74,7 @@ export const onReplaceProductTitle = async (values: z.infer<typeof ProductNameSc
 
 
         await cassandraDb.execute(UPDATE_PRODUCT_TITLE_QUERY, params, { prepare: true });
+        await redis.del(`product:${productId}`);
 
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`)
@@ -113,6 +114,8 @@ export const onReplaceProductDesc = async (values: z.infer<typeof ProductDescrip
 
 
         await cassandraDb.execute(UPDATE_PRODUCT_DESC_QUERY, params, { prepare: true });
+        await redis.del(`product:${productId}`);
+
 
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`)
@@ -157,7 +160,8 @@ export const onReplaceProductPrice = async (values: z.infer<typeof ProductPriceS
         const params = [price, productId];
 
         await cassandraDb.execute(UPDATE_PRODUCT_PRICE_QUERY, params, { prepare: true });
-        console.log('Product updated successfully');
+        await redis.del(`product:${productId}`);
+
         revalidatePath(`/dashboard/${storeId}/products/${productId}`);
 
         return {
@@ -192,6 +196,8 @@ export const onReplaceProductCategory = async (values: z.infer<typeof ProductCat
         const UPDATE_PRODUCT_CATEGORY_QUERY = `UPDATE product_by_seller SET category = ?, updated_at = ? WHERE product_id = ?`;
         const params = [values.category, new Date(), productId];
         await cassandraDb.execute(UPDATE_PRODUCT_CATEGORY_QUERY, params, { prepare: true });
+        await redis.del(`product:${productId}`);
+
 
 
 
@@ -232,6 +238,8 @@ export const onUpdateProductImage = async (values: z.infer<typeof ProductImageSc
         const params = [[imageUrl]  , productId];
 
         await cassandraDb.execute(UPDATE_PRODUCT_IMAGE_QUERY, params, { prepare: true });
+        await redis.del(`product:${productId}`);
+
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`);
 
@@ -272,7 +280,8 @@ export const onDeleteProductThumbnail = async (imageUrl: string, productId: stri
 
        await cassandraDb.execute(UPDATE_PRODUCT_IMAGE_QUERY, params, { prepare: true });
 
-       console.log('Product image removed successfully');
+       await redis.del(`product:${productId}`);
+
 
        revalidatePath(`/dashboard/${storeId}/products/${productId}`);
 
@@ -317,6 +326,8 @@ export const onAddSubCategory = async (subCategory: z.infer<typeof ProductNameSc
            const params = [[ name]  , productId];
    
            await cassandraDb.execute(UPDATE_PRODUCT_SUB_CATEGORY_QUERY, params, { prepare: true });
+           await redis.del(`product:${productId}`);
+
    
            revalidatePath(`/dashboard/${storeId}/products/${productId}`);
    
@@ -364,6 +375,8 @@ export const onAddProductColor = async (values: z.infer<typeof ProductColorSchem
 
 
         await cassandraDb.execute(UPDATE_PRODUCT_COLOR_QUERY, params, { prepare: true });
+        await redis.del(`product:${productId}`);
+
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`);
 
@@ -393,6 +406,8 @@ export const onAddToWarehouse = async (isPublished :boolean , productId: string,
         const params = [isPublished, productId];
 
         await cassandraDb.execute(UPDATE_PRODUCT_DESC_QUERY, params, { prepare: true });
+        await redis.del(`product:${productId}`);
+
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`);
 
@@ -417,6 +432,8 @@ export const onRemoveFromWarehouse = async (isPublished :boolean , productId: st
         const params = [isPublished, productId];
 
         await cassandraDb.execute(UPDATE_PRODUCT_DESC_QUERY, params, { prepare: true });
+        await redis.del(`product:${productId}`);
+
 
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`);
@@ -445,6 +462,8 @@ export const deleteProduct = async (productId: string, storeId: string) => {
 
 
         await cassandraDb.execute(DELETE_PRODUCT_QUERY, params, { prepare: true });
+        await redis.del(`product:${productId}`);
+
 
 
         

@@ -1,14 +1,13 @@
 "use server";
 
+import cassandraDb from "@/db";
 import { formSchema } from "@/schemas";
 import { auth } from "@clerk/nextjs";
 import { nanoid } from 'nanoid';
-import cassandraDb from "@/db";
 
 
-import * as  z  from "zod";
-import { Collection } from "@datastax/astra-db-ts";
 import { revalidatePath } from "next/cache";
+import * as z from "zod";
 
 export const addStore = async (values: z.infer<typeof formSchema>) => {
 

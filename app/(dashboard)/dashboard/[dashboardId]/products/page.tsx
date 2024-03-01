@@ -13,10 +13,10 @@ type Props = {
 async function ProductsPage({params}: Props) {
   const products = await getProductsByStoreId(params.dashboardId);
 
-  const newData = products.map((item, idx) => ({
+  const newData = products.map((item: ProductTableData, idx: number) => ({
     id: (idx + 1).toString(),
     name: item.name,
-    price: item.price,
+    price: item.price === null ? 0 : item.price,
     isPublished: item.isPublished,
     // inStock: item.inStock,
     category: item.category,

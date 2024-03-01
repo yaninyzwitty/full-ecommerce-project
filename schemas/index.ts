@@ -8,6 +8,10 @@ export const nameSchema = z.object({
     name: z.string().min(2).max(50),
   });
 
+export const CategoryNameSchema = z.object({
+    name: z.string().min(2).max(50),
+  });
+
 
 
 
@@ -53,3 +57,10 @@ export const nameSchema = z.object({
   export const ProductColorSchema = z.object({
     color: z.string()
   })
+
+
+  export const CategoryDescriptionSchema = z.object({
+    description: z.string().min(2).max(500, {
+      message: "Description must be at least 2 characters long, less than 500 characters"
+    })
+  });

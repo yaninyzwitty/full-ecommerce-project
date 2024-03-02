@@ -55,6 +55,7 @@ export type ProductTableData = {
 export type Category = {
     categoryId : string;
     name : string;
+    isPublished: boolean;
     description: string;
     categoryThumbnail: string;
     tags: string[];

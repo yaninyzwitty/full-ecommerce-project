@@ -55,3 +55,8 @@ CREATE TABLE IF NOT EXISTS category_by_seller (
         created_at TIMESTAMP,
         updated_at TIMESTAMP
 );
+
+ALTER TABLE
+    category_by_seller
+ADD
+    isPublished BOOLEAN;

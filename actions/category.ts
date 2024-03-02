@@ -1,6 +1,6 @@
 "use server";
 import cassandraDb from '@/db';
-import { CategoryDescriptionSchema, CategoryNameSchema } from '@/schemas';
+import { CategoryDescriptionSchema, CategoryNameSchema, CategoryTagsSchema, CategoryThumbnailSchema } from '@/schemas';
 import { revalidatePath } from 'next/cache';
 import * as z from 'zod';
 
@@ -156,4 +156,157 @@ export const onReplaceCategoryDescription = async (values: z.infer<typeof Catego
         
     }
 
+};
+
+
+export const onReplaceCategoryThumbnail = async (values: z.infer<typeof CategoryThumbnailSchema>, categoryId: string, storeId: string)  => {
+    try {
+
+
+        const validatedFields = CategoryThumbnailSchema.safeParse(values);
+        if(!validatedFields.success) {
+            return {
+                error: "Invalid fields"
+            }
+
+        
+        };
+
+
+        const { thumbnailUrl  } = validatedFields.data;
+
+        const updated_at = new Date();
+        const UPDATE_CATEGORY_THUMBNAIL_QUERY = `UPDATE category_by_seller SET  category_thumnail = ?, updated_at = ? WHERE categoryid = ?`;
+        const params = [thumbnailUrl, updated_at, categoryId];
+
+        await cassandraDb.execute(UPDATE_CATEGORY_THUMBNAIL_QUERY, params, { prepare: true });
+
+        revalidatePath(`/dashboard/${storeId}/categories`);
+        revalidatePath(`/dashboard/${storeId}/categories/${categoryId}`);
+
+        return {
+            success: "Category  successfully updated!"
+        }
+
+
+
+
+
+
+
+        
+    } catch (error) {
+        console.log(error);
+        return {
+            error: "Something went wrong"
+        };
+
+
+    
+        
+    }
+};
+
+export const onAddCategoryTag = async (values: z.infer<typeof CategoryTagsSchema>, categoryId: string, storeId: string ) => {
+    try {
+
+        const validatedFields = CategoryTagsSchema.safeParse(values);
+        if(!validatedFields.success) {
+            return {
+                error: "Invalid fields"
+            }
+
+        
+            };
+
+
+            const {  tag } = validatedFields.data;
+            const updated_at = new Date();
+            const UPDATE_CATEGORY_TAGS_QUERY = 'UPDATE category_by_seller SET category_tags = category_tags + ? , updated_at = ?  WHERE categoryid = ?';
+            const params = [[tag], updated_at, categoryId];
+
+
+            await cassandraDb.execute(UPDATE_CATEGORY_TAGS_QUERY, params, { prepare: true });
+            revalidatePath(`/dashboard/${storeId}/categories`);
+            revalidatePath(`/dashboard/${storeId}/categories/${categoryId}`);
+            return {
+                success: "Category  successfully updated!"
+            
+            };
+
+ 
+    } catch (error) {
+        console.log(error);
+        return {
+            error: "Something went wrong"
+        };
+
+
+    
+        
+    }
+}
+
+
+
+export const onRemoveCategoryTag = async (tag: string, categoryId: string, storeId: string) => {
+    try {
+
+        if(!tag) {
+            return {
+                error: "Invalid fields"
+            }
+
+
+            
+        };
+
+        const updated_at = new Date();
+        const UPDATE_CATEGORY_TAGS_QUERY = 'UPDATE category_by_seller SET category_tags = category_tags - ? , updated_at = ?  WHERE categoryid = ?';
+        const params = [[tag], updated_at, categoryId];
+        await cassandraDb.execute(UPDATE_CATEGORY_TAGS_QUERY, params, { prepare: true });
+        revalidatePath(`/dashboard/${storeId}/categories`);
+        revalidatePath(`/dashboard/${storeId}/categories/${categoryId}`);
+
+
+        return {
+            success: "Category  successfully updated!"
+
+        
+        };
+        
+    } catch (error) {
+        console.log(error);
+        return {
+            error: "Something went wrong"
+        };
+
+
+    
+        
+    }
+}
+
+
+export const onPublishCategory = async (isPublished: boolean, categoryId: string, storeId: string) => {
+    try {
+        const updated_at = new Date();
+
+        const UPDATE_CATEGORY_PUBLISH_STATUS_QUERY = 'UPDATE category_by_seller SET ispublished = ? , updated_at = ?  WHERE categoryid = ?';
+        const params = [isPublished, updated_at, categoryId];
+        await cassandraDb.execute(UPDATE_CATEGORY_PUBLISH_STATUS_QUERY, params, { prepare: true });
+        revalidatePath(`/dashboard/${storeId}/categories`);
+        revalidatePath(`/dashboard/${storeId}/categories/${categoryId}`);
+        return {
+            success: "Category  successfully updated!"
+
+        };
+        
+    } catch (error) {
+        console.log(error);
+        return {
+            error: "Something went wrong"
+        };
+        
+    }
 }

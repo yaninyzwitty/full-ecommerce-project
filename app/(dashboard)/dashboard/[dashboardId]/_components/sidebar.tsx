@@ -45,7 +45,9 @@ function Sidebar() {
       href: `/dashboard/${params.dashboardId}/categories`,
       icon: Copy,
       isCollapsible: true,
-      active: pathname === `/dashboard/${params.dashboardId}/categories`,
+      active: pathname.startsWith(
+        `/dashboard/${params.dashboardId}/categories`
+      ),
     },
     {
       name: "Orders",

@@ -20,6 +20,7 @@ export async function getCategory (categoryId: string) {
                 categoryId: row.categoryid?.toString(),
                 name: row.name,
                 description: row.description,
+                isPublished:    row.ispublished,
                 categoryThumbnail: row.category_thumnail,
                 tags: row.category_tags,
                 starredCategories: row.starred_categories,

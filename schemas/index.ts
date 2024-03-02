@@ -64,3 +64,20 @@ export const CategoryNameSchema = z.object({
       message: "Description must be at least 2 characters long, less than 500 characters"
     })
   });
+
+
+
+  export const CategoryThumbnailSchema = z.object({
+    thumbnailUrl: z.string()
+  });
+
+
+  
+
+  export const CategoryTagsSchema = z.object({
+    tag: z.string().min(2).max(30, {
+      message: "Tag must be at least 2 characters long, less than 30 characters"
+    
+    })
+
+  })

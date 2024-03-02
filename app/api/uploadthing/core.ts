@@ -18,6 +18,25 @@ export const ourFileRouter = {
  
       return { fileUrl: file.url  };
     }),
+
+    uploadThumbnail: f({ image: { maxFileSize: "4MB", maxFileCount: 1  } })
+    .middleware(async () => {
+      const { userId } = auth();
+ 
+      if (!userId) throw new UploadThingError("Unauthorized");
+ 
+      return { userId  };
+
+
+    })
+    .onUploadComplete(async ({  file }) => {
+
+      
+      return { fileUrl: file.url  };
+
+
+    })
+
 } satisfies FileRouter;
  
 export type OurFileRouter = typeof ourFileRouter;

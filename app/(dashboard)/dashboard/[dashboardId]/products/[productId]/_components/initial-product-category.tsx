@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {Category, CategoryInProduct} from "@/schemas/typings";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {PencilIcon} from "lucide-react";
 import {useParams} from "next/navigation";
@@ -32,9 +33,10 @@ const formSchema = z.object({
 
 type Props = {
   category: string;
+  categories: CategoryInProduct[];
 };
 
-function InitialProductCategory({category}: Props) {
+function InitialProductCategory({category, categories}: Props) {
   const [isPending, startTransition] = useTransition();
   const [isEditing, setIsEditing] = useState(false);
   const params = useParams();
@@ -110,13 +112,11 @@ function InitialProductCategory({category}: Props) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="clothing">Clothing</SelectItem>
-                      <SelectItem value="electronics">Electronics</SelectItem>
-                      <SelectItem value="food">Food</SelectItem>
-                      <SelectItem value="candy">Candy</SelectItem>
-                      <SelectItem value="drinks">Beverages</SelectItem>
-                      <SelectItem value="warehousing">Warehousing</SelectItem>
-                      <SelectItem value="filming">Filming</SelectItem>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.name}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

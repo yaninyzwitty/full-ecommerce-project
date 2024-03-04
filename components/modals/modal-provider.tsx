@@ -2,7 +2,6 @@
 
 import {useEffect, useState} from "react";
 import DialogModal from "./dialog-modal";
-import ProductModal from "./product-modal";
 import ThumbnailModal from "./thumbnail-modal";
 
 function ModalProvider() {
@@ -16,7 +15,6 @@ function ModalProvider() {
   return (
     <>
       <DialogModal />
-      <ProductModal />
       <ThumbnailModal />
     </>
   );

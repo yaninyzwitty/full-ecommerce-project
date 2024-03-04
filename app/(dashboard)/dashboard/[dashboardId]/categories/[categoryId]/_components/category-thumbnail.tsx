@@ -72,9 +72,9 @@ function CategoryThumbnail({thumbnailUrl}: Props) {
           <Image
             src={thumbnailUrl}
             alt="category thumbnail"
-            width={100}
-            height={100}
-            className="object-cover  "
+            width={400}
+            height={300}
+            className="object-cover  w-full "
           />
         </div>
       )}

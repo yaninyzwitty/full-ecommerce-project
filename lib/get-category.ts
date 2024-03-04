@@ -1,6 +1,7 @@
 import cassandraDb from "@/db";
-import { Category } from "@/schemas/typings";
+import { Category, Product } from "@/schemas/typings";
 import { redis  } from "@/redis";
+import { getAllProducts } from "./get-product";
 
 export async function getCategory (categoryId: string) {
     try {
@@ -16,6 +17,8 @@ export async function getCategory (categoryId: string) {
         
         } else {
 
+            const products: Product[] = await getAllProducts();
+
             const results = (await cassandraDb.execute(GET_CATEGORY_BY_CATEGORY_ID, params, { prepare: true })).rows.map(( row) => ({
                 categoryId: row.categoryid?.toString(),
                 name: row.name,
@@ -26,8 +29,10 @@ export async function getCategory (categoryId: string) {
                 starredCategories: row.starred_categories,
                 createdAt: row.created_at,
                 updatedAt: row.updated_at,
+                remaining: !!products && products?.filter(product => product.category === row.name).length
+
     
-            })) as Category[];
+            })).sort((a, b) => b.createdAt - a.createdAt ) as Category[];
 
 
             if(results.length > 0 || results) {
@@ -52,5 +57,85 @@ export async function getCategory (categoryId: string) {
         throw new Error(error.message)
         
     }
+
+}
+
+
+export const getCategories = async (storeId: string) => {
+    try {
+        const cachedData = await redis.get(`categories:${storeId}`);
+        if(cachedData) {
+            return JSON.parse(cachedData);
+
+        } else {
+
+        const GET_CATEGORY = `SELECT * FROM category_by_seller WHERE store_id = ?`;
+        const params = [storeId]
+        const results = (await cassandraDb.execute(GET_CATEGORY, params, { prepare: true })).rows.map(( row) => ({
+            categoryId: row.categoryid?.toString(),
+            name: row.name,
+            description: row.description,
+            isPublished: row.ispublished,
+            categoryThumbnail: row.category_thumnail,
+            tags: row.category_tags,
+            starredCategories: row.starred_categories,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+
+        })) as Category[];
+
+        await redis.set(`categories:${storeId}`, JSON.stringify(results), 'EX', 3600);
+        return results;
+
+    }
+ 
+        
+    } catch (error: any) {
+        console.log(`get_categories`, error);
+        throw new Error(error.message) ;
+
+    
+        
+    }
+
+}
+
+
+export const getAllCategories = async () => {
+    try {
+        const cachedData = await redis.get(`all-categories`);
+        if(cachedData) {
+            return JSON.parse(cachedData);
+
+        } else {
+
+            const GET_CATEGORY = `SELECT * FROM category_by_seller LIMIT 30`;
+            const results = (await cassandraDb.execute(GET_CATEGORY, [], { prepare: true })).rows.map(( row) => ({
+                categoryId: row.categoryid?.toString(),
+                name: row.name,
+                description: row.description,
+                isPublished: row.ispublished,
+                categoryThumbnail: row.category_thumnail,
+                tags: row.category_tags,
+                starredCategories: row.starred_categories,
+                createdAt: row.created_at,
+                updatedAt: row.updated_at,
+    
+            })) as Category[];
+            await redis.set(`categories`, JSON.stringify(results), 'EX', 3600);
+            return results;
+
+
+        }
+
+
+
+        
+    } catch (error: any) {
+        console.log(`get_all_categories`, error);
+        throw new Error(error.message) ;
+        
+    }
+
 
 }

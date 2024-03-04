@@ -468,6 +468,7 @@ export const deleteProduct = async (productId: string, storeId: string) => {
 
         
         revalidatePath(`/dashboard/${storeId}/products`);
+        revalidatePath(`/dashboard/${storeId}/products/${productId}`);
 
         return {
             success: "Product deleted successfully"

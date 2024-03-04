@@ -1,13 +1,9 @@
 "use client";
 
 import {ColumnDef} from "@tanstack/react-table";
-import {formatDistance, formatDistanceToNow, subDays} from "date-fns";
+import {formatDistanceToNow} from "date-fns";
 
-import {ArrowUpDown} from "lucide-react";
-
-import {MoreHorizontal} from "lucide-react";
 import {Button} from "@/components/ui/button";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,8 +12,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {Checkbox} from "@/components/ui/checkbox";
+import {ArrowUpDown, MoreHorizontal} from "lucide-react";
+
 import {ProductTableData} from "@/schemas/typings";
+import Link from "next/link";
+import {deleteProduct} from "@/actions/product";
+import {toast} from "sonner";
 
 export type Payment = {
   id: string;
@@ -27,64 +27,6 @@ export type Payment = {
 };
 
 export const columns: ColumnDef<ProductTableData>[] = [
-  // {
-  //   id: "select",
-  //   header: ({table}) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && "indeterminate")
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //     />
-  //   ),
-  //   cell: ({row}) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
-  // {
-  //   id: "actions",
-  //   cell: ({row}) => {
-  //     const payment = row.original;
-
-  //     return (
-  //       <DropdownMenu>
-  //         <DropdownMenuTrigger asChild>
-  //           <Button variant="ghost" className="h-8 w-8 p-0">
-  //             <span className="sr-only">Open menu</span>
-  //             <MoreHorizontal className="h-4 w-4" />
-  //           </Button>
-  //         </DropdownMenuTrigger>
-  //         <DropdownMenuContent align="end">
-  //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-  //           <DropdownMenuItem
-  //             onClick={() => navigator.clipboard.writeText(payment.id)}
-  //           >
-  //             Copy payment ID
-  //           </DropdownMenuItem>
-  //           <DropdownMenuSeparator />
-  //           <DropdownMenuItem>View customer</DropdownMenuItem>
-  //           <DropdownMenuItem>View payment details</DropdownMenuItem>
-  //         </DropdownMenuContent>
-  //       </DropdownMenu>
-  //     );
-  //   },
-  // {
-  //   id: '1',
-  //   name: 'Starry Night Berry Delight Pie',
-  //   price: 33,
-  //   isPublished: true,
-  //   category: 'food',
-  //   createdAt: new Date('2024-02-26T13:36:49.000Z')
-  // },
-  // },
   {
     accessorKey: "id",
     header: "Index",
@@ -113,7 +55,11 @@ export const columns: ColumnDef<ProductTableData>[] = [
         currency: "USD",
       }).format(amount);
 
-      return <div className=" font-medium">{formatted}</div>;
+      return (
+        <div className=" font-medium">
+          {formatted === "$NaN" ? "$0.00" : formatted}
+        </div>
+      );
     },
   },
   {
@@ -138,6 +84,55 @@ export const columns: ColumnDef<ProductTableData>[] = [
       const isPublished = row.getValue("isPublished");
       return (
         <div className="hidden lg:block">{isPublished ? "True" : "False"}</div>
+      );
+    },
+  },
+  {
+    id: "actions",
+    cell: ({row}) => {
+      const product = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[200px]">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem asChild>
+              <Link
+                href={`/dashboard/${product.storeId}/products/${product.productId}`}
+              >
+                Edit Product
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              className="bg-rose-500/15 text-rose-500  hover:bg-rose-500/20"
+              onClick={async () => {
+                // delete the product
+                deleteProduct(
+                  product.productId as string,
+                  product.storeId as string
+                ).then((data) => {
+                  if (data.error) {
+                    toast.error(data.error);
+                  }
+
+                  if (data.success) {
+                    toast.success("Product deleted successfully");
+                  }
+                });
+              }}
+            >
+              Delete this product
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
   },

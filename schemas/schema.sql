@@ -56,7 +56,14 @@ CREATE TABLE IF NOT EXISTS category_by_seller (
         updated_at TIMESTAMP
 );
 
+CREATE CUSTOM INDEX by_storeid ON category_by_seller (store_id) USING 'StorageAttachedIndex';
+
 ALTER TABLE
     category_by_seller
 ADD
     isPublished BOOLEAN;
+
+ALTER TABLE
+    category_by_seller
+ADD
+    store_id TEXT;

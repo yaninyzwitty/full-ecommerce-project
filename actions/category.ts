@@ -3,6 +3,7 @@ import cassandraDb from '@/db';
 import { CategoryDescriptionSchema, CategoryNameSchema, CategoryTagsSchema, CategoryThumbnailSchema } from '@/schemas';
 import { revalidatePath } from 'next/cache';
 import * as z from 'zod';
+import { redis  } from '@/redis';
 
 export const onAddCategoryName = async (values: z.infer<typeof CategoryNameSchema>, storeId: string ) => {
     
@@ -21,19 +22,23 @@ export const onAddCategoryName = async (values: z.infer<typeof CategoryNameSchem
         const created_at = new Date();
         const categoryId = crypto.randomUUID();
 
+
+
     // check if category name already exists
 
 
         const SELECT_CATEGORY_QUERY = `SELECT *  FROM category_by_seller`;
-        const result = await (await cassandraDb.execute(SELECT_CATEGORY_QUERY, [], { prepare: true })).rows[0];
+        const result =  (await cassandraDb.execute(SELECT_CATEGORY_QUERY, [], { prepare: true })).rows[0];
         if(result.name === name){
             return {
                 error: "Category name already exists"
             }
         }  else {
-            const INSERT_CATEGORY_QUERY = `INSERT INTO category_by_seller (categoryid, name, created_at) VALUES ( ?, ?, ?)`;
-            const paeams = [categoryId, name, created_at]
-            await cassandraDb.execute(INSERT_CATEGORY_QUERY, paeams, { prepare: true });
+            const INSERT_CATEGORY_QUERY = `INSERT INTO category_by_seller (categoryid, name, created_at, store_id) VALUES ( ?, ?, ?, ?)`;
+            const params = [categoryId, name, created_at, storeId]
+            await cassandraDb.execute(INSERT_CATEGORY_QUERY, params, { prepare: true });
+
+            await redis.del(`categories:${storeId}`)
     
 
             
@@ -89,6 +94,8 @@ export const onReplaceCategoryName = async (values: z.infer<typeof CategoryNameS
 
 
         await cassandraDb.execute(UPDATE_CATEGORY_NAME_QUERY, params, { prepare: true });
+        await redis.del(`categories:${storeId}`)
+
 
         revalidatePath(`/dashboard/${storeId}/categories`);
         revalidatePath(`/dashboard/${storeId}/categories/${categoryId}`);
@@ -134,6 +141,8 @@ export const onReplaceCategoryDescription = async (values: z.infer<typeof Catego
         const params = [description.trim() , updated_at, categoryId]
 
         await cassandraDb.execute(UPDATE_CATEGORY_DESCRIPTION_QUERY, params, { prepare: true });
+        await redis.del(`categories:${storeId}`)
+
 
         revalidatePath(`/dashboard/${storeId}/categories`);
         revalidatePath(`/dashboard/${storeId}/categories/${categoryId}`);
@@ -180,6 +189,7 @@ export const onReplaceCategoryThumbnail = async (values: z.infer<typeof Category
         const params = [thumbnailUrl, updated_at, categoryId];
 
         await cassandraDb.execute(UPDATE_CATEGORY_THUMBNAIL_QUERY, params, { prepare: true });
+        await redis.del(`categories:${storeId}`)
 
         revalidatePath(`/dashboard/${storeId}/categories`);
         revalidatePath(`/dashboard/${storeId}/categories/${categoryId}`);
@@ -227,6 +237,10 @@ export const onAddCategoryTag = async (values: z.infer<typeof CategoryTagsSchema
 
 
             await cassandraDb.execute(UPDATE_CATEGORY_TAGS_QUERY, params, { prepare: true });
+            await redis.del(`categories:${storeId}`)
+
+
+
             revalidatePath(`/dashboard/${storeId}/categories`);
             revalidatePath(`/dashboard/${storeId}/categories/${categoryId}`);
             return {
@@ -265,6 +279,8 @@ export const onRemoveCategoryTag = async (tag: string, categoryId: string, store
         const UPDATE_CATEGORY_TAGS_QUERY = 'UPDATE category_by_seller SET category_tags = category_tags - ? , updated_at = ?  WHERE categoryid = ?';
         const params = [[tag], updated_at, categoryId];
         await cassandraDb.execute(UPDATE_CATEGORY_TAGS_QUERY, params, { prepare: true });
+        await redis.del(`categories:${storeId}`)
+
         revalidatePath(`/dashboard/${storeId}/categories`);
         revalidatePath(`/dashboard/${storeId}/categories/${categoryId}`);
 
@@ -295,8 +311,12 @@ export const onPublishCategory = async (isPublished: boolean, categoryId: string
         const UPDATE_CATEGORY_PUBLISH_STATUS_QUERY = 'UPDATE category_by_seller SET ispublished = ? , updated_at = ?  WHERE categoryid = ?';
         const params = [isPublished, updated_at, categoryId];
         await cassandraDb.execute(UPDATE_CATEGORY_PUBLISH_STATUS_QUERY, params, { prepare: true });
+
+        await redis.del(`categories:${storeId}`)
+
         revalidatePath(`/dashboard/${storeId}/categories`);
         revalidatePath(`/dashboard/${storeId}/categories/${categoryId}`);
+
         return {
             success: "Category  successfully updated!"
 

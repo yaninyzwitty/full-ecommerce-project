@@ -40,8 +40,10 @@ export type Product = {
 export type ProductTableData = {
     id: string;
     name: string;
+    productId?: string;
     price: number;
     isPublished: boolean;
+    storeId?: string;
     category: string;
     // inStock: "In Stock" | "Out of stock" | 'Limited Quantity Available'; //availability
     createdAt: string | Date;
@@ -62,4 +64,13 @@ export type Category = {
     starredCategories: string[];
     createdAt: string | Date;
     updatedAt: string | Date;
+    remaining?: number;
+}
+
+
+
+type CategoryInProduct = {
+    id: string;
+    name: string;
+    // remaining: number
 }

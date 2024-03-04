@@ -10,7 +10,7 @@ type Props = {
 function AddCategory({dashboardId}: Props) {
   return (
     <Button>
-      <Link href={`/dashboard/${dashboardId}/categories/add`}>
+      <Link href={`/dashboard/${dashboardId}/categories/new`}>
         Add Category
       </Link>
     </Button>

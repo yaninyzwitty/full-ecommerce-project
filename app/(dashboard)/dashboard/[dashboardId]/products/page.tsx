@@ -19,6 +19,8 @@ async function ProductsPage({params}: Props) {
     price: item.price === null ? 0 : item.price,
     isPublished: item.isPublished,
     // inStock: item.inStock,
+    productId: item.productId,
+    storeId: item.storeId,
     category: item.category,
     createdAt: item.createdAt,
   })) as ProductTableData[];

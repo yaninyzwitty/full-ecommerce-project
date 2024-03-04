@@ -12,6 +12,8 @@ import IntialProductSubCategory from "./_components/initial-product-sub";
 import UnPublishButton from "./_components/unpublish-button";
 import DeleteProduct from "./_components/delete-product";
 import {notFound} from "next/navigation";
+import {getCategories} from "@/lib/get-category";
+import {formatCategory} from "@/lib/format-category";
 
 type Props = {
   params: {
@@ -21,6 +23,7 @@ type Props = {
 };
 async function ProductIdPage({params: {dashboardId, productId}}: Props) {
   const product = await getProduct(dashboardId, productId);
+  const categories = await formatCategory();
 
   if (!product || product === undefined) {
     notFound();
@@ -74,7 +77,10 @@ async function ProductIdPage({params: {dashboardId, productId}}: Props) {
             <InitialProductName title={product.name} />
             <InitialProductDescription description={product.description} />
             <InitialProductPrice price={product.price} />
-            <InitialProductCategory category={product.category} />
+            <InitialProductCategory
+              category={product.category}
+              categories={categories}
+            />
           </div>
           <div>
             <InitialProductImage images={product.images} />

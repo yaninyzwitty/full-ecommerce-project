@@ -3,7 +3,7 @@
 import cassandraDb from '@/db';
 import { redis } from '@/redis';
 
-import { ProductCategorySchema, ProductColorSchema, ProductDescriptionSchema, ProductImageSchema, ProductNameSchema, ProductPriceSchema } from '@/schemas';
+import { ProductCategorySchema, ProductColorSchema, ProductDescriptionSchema, ProductImageSchema, ProductInventorySchema, ProductNameSchema, ProductPriceSchema, ProductStockSchema } from '@/schemas';
 import { revalidatePath } from 'next/cache';
 import * as z from 'zod';
 
@@ -75,6 +75,7 @@ export const onReplaceProductTitle = async (values: z.infer<typeof ProductNameSc
 
         await cassandraDb.execute(UPDATE_PRODUCT_TITLE_QUERY, params, { prepare: true });
         await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
 
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`)
@@ -115,6 +116,8 @@ export const onReplaceProductDesc = async (values: z.infer<typeof ProductDescrip
 
         await cassandraDb.execute(UPDATE_PRODUCT_DESC_QUERY, params, { prepare: true });
         await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
+
 
 
 
@@ -161,6 +164,8 @@ export const onReplaceProductPrice = async (values: z.infer<typeof ProductPriceS
 
         await cassandraDb.execute(UPDATE_PRODUCT_PRICE_QUERY, params, { prepare: true });
         await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
+
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`);
 
@@ -197,6 +202,8 @@ export const onReplaceProductCategory = async (values: z.infer<typeof ProductCat
         const params = [values.category, new Date(), productId];
         await cassandraDb.execute(UPDATE_PRODUCT_CATEGORY_QUERY, params, { prepare: true });
         await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
+
 
 
 
@@ -239,6 +246,8 @@ export const onUpdateProductImage = async (values: z.infer<typeof ProductImageSc
 
         await cassandraDb.execute(UPDATE_PRODUCT_IMAGE_QUERY, params, { prepare: true });
         await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
+
 
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`);
@@ -281,6 +290,8 @@ export const onDeleteProductThumbnail = async (imageUrl: string, productId: stri
        await cassandraDb.execute(UPDATE_PRODUCT_IMAGE_QUERY, params, { prepare: true });
 
        await redis.del(`product:${productId}`);
+       await redis.del(`products:${storeId}`);
+
 
 
        revalidatePath(`/dashboard/${storeId}/products/${productId}`);
@@ -327,6 +338,8 @@ export const onAddSubCategory = async (subCategory: z.infer<typeof ProductNameSc
    
            await cassandraDb.execute(UPDATE_PRODUCT_SUB_CATEGORY_QUERY, params, { prepare: true });
            await redis.del(`product:${productId}`);
+           await redis.del(`products:${storeId}`);
+
 
    
            revalidatePath(`/dashboard/${storeId}/products/${productId}`);
@@ -355,6 +368,50 @@ export const onAddSubCategory = async (subCategory: z.infer<typeof ProductNameSc
 };
 
 
+export const onUpdateProductStock = async (values: z.infer<typeof ProductStockSchema>, productId: string, storeId: string) => {
+    try {
+
+        const validatedFields = ProductStockSchema.safeParse(values);
+        if(!validatedFields.success) {
+            return {
+                error: "Invalid fields"
+            }
+        };
+
+        const { inStock } = validatedFields.data;
+        const UPDATE_PRODUCT_STOCK_LEVEL_QUERY = `UPDATE product_by_seller SET stock_level = ? WHERE product_id = ?` ;
+        const params = [inStock, productId];
+
+        await cassandraDb.execute(UPDATE_PRODUCT_STOCK_LEVEL_QUERY, params, { prepare: true });
+        await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
+
+
+
+        revalidatePath(`/dashboard/${storeId}/products/${productId}`);
+        revalidatePath(`/dashboard/${storeId}/products`);
+
+        return {
+            success: "Product updated successfully"
+        
+        }
+
+
+
+
+        
+    } catch (error) {
+        console.log(error);
+        return {
+            error: "Something went wrong"
+        }
+
+    
+        
+    }
+}
+
+
 export const onAddProductColor = async (values: z.infer<typeof ProductColorSchema >, productId: string, storeId: string) => {
     try {
         const validatedFields = ProductColorSchema.safeParse(values);
@@ -368,7 +425,6 @@ export const onAddProductColor = async (values: z.infer<typeof ProductColorSchem
 
 
         const { color  } = validatedFields.data;
-        console.log(color);
 
         const UPDATE_PRODUCT_COLOR_QUERY = 'UPDATE product_by_seller SET colors = colors + ? WHERE product_id = ?';
         const params = [[ color]  , productId];
@@ -376,6 +432,8 @@ export const onAddProductColor = async (values: z.infer<typeof ProductColorSchem
 
         await cassandraDb.execute(UPDATE_PRODUCT_COLOR_QUERY, params, { prepare: true });
         await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
+
 
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`);
@@ -407,9 +465,12 @@ export const onAddToWarehouse = async (isPublished :boolean , productId: string,
 
         await cassandraDb.execute(UPDATE_PRODUCT_DESC_QUERY, params, { prepare: true });
         await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
+
 
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`);
+        revalidatePath(`/dashboard/${storeId}/products`);
 
         return {
              success: "Product updated successfully"
@@ -433,10 +494,13 @@ export const onRemoveFromWarehouse = async (isPublished :boolean , productId: st
 
         await cassandraDb.execute(UPDATE_PRODUCT_DESC_QUERY, params, { prepare: true });
         await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
+
 
 
 
         revalidatePath(`/dashboard/${storeId}/products/${productId}`);
+        revalidatePath(`/dashboard/${storeId}/products`);
 
         return {
              success: "Product updated successfully"
@@ -454,6 +518,55 @@ export const onRemoveFromWarehouse = async (isPublished :boolean , productId: st
 };
 
 
+export const onUpdateProductInventory = async (values: z.infer<typeof ProductInventorySchema>, productId: string, storeId: string) => {
+    try {
+
+        const validatedFields = ProductInventorySchema.safeParse(values);
+        if(!validatedFields.success) {
+            return {
+                error: "Invalid fields"
+            }
+
+        };
+        const { inventory  } = validatedFields.data;
+
+
+
+        const UPDATE_PRODUCT_INVENTORY_QUERY = `UPDATE product_by_seller SET inventory = ? WHERE product_id = ?` ;
+
+        const params = [inventory, productId];
+
+        await cassandraDb.execute(UPDATE_PRODUCT_INVENTORY_QUERY, params, { prepare: true });
+
+
+        await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
+
+
+        revalidatePath(`/dashboard/${storeId}/products/${productId}`);
+        revalidatePath(`/dashboard/${storeId}/products`);
+
+
+        return {
+            success: "Product inventory updated successfully"
+        
+        }
+
+
+
+        
+
+        
+    } catch (error) {
+        console.log(error);
+        return {
+            error: "Something went wrong"
+        
+        }
+        
+    }
+}
+
 export const deleteProduct = async (productId: string, storeId: string) => {
 
     try {
@@ -463,6 +576,8 @@ export const deleteProduct = async (productId: string, storeId: string) => {
 
         await cassandraDb.execute(DELETE_PRODUCT_QUERY, params, { prepare: true });
         await redis.del(`product:${productId}`);
+        await redis.del(`products:${storeId}`);
+
 
 
 

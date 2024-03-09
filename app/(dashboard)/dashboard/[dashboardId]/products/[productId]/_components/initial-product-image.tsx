@@ -20,7 +20,6 @@ type Props = {
 
 function InitialProductImage({images}: Props) {
   const {onOpen} = useThumbnailModal();
-  console.log(images);
   const [isPending, startTransition] = useTransition();
   const [isEditing, setIsEditing] = useState(false);
 

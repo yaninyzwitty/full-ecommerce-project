@@ -15,7 +15,13 @@ const font = Poppins({
   weight: ["600"],
 });
 
-function Categories({categories}: {categories: Category[]}) {
+function Categories({
+  categories,
+  has_no_location,
+}: {
+  categories: Category[];
+  has_no_location: boolean;
+}) {
   const params = useParams();
   const router = useRouter();
   const createCategory = () => {
@@ -37,6 +43,7 @@ function Categories({categories}: {categories: Category[]}) {
           <Button
             className="text-lg py-8 px-4"
             size={"lg"}
+            disabled={has_no_location}
             onClick={createCategory}
           >
             Create category

@@ -3,6 +3,7 @@
 import {useEffect, useState} from "react";
 import DialogModal from "./dialog-modal";
 import ThumbnailModal from "./thumbnail-modal";
+import PopoverLocationModal from "./popover-location-modal";
 
 function ModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
@@ -16,6 +17,7 @@ function ModalProvider() {
     <>
       <DialogModal />
       <ThumbnailModal />
+      <PopoverLocationModal />
     </>
   );
 }

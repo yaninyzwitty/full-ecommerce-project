@@ -1,19 +1,21 @@
 import {Separator} from "@/components/ui/separator";
+import {formatCategory} from "@/lib/format-category";
 import {getProduct} from "@/lib/get-product";
 import {cn} from "@/lib/utils";
+import {Product} from "@/schemas/typings";
+import {notFound} from "next/navigation";
 import AddToWarehouseButton from "./_components/add-to-warehouse";
+import DeleteProduct from "./_components/delete-product";
 import InitialProductCategory from "./_components/initial-product-category";
 import InitialProductColors from "./_components/initial-product-colors";
 import InitialProductDescription from "./_components/initial-product-description";
 import InitialProductImage from "./_components/initial-product-image";
+import InitialProductInventory from "./_components/initial-product-inventory";
 import InitialProductName from "./_components/initial-product-name";
 import InitialProductPrice from "./_components/initial-product-price";
 import IntialProductSubCategory from "./_components/initial-product-sub";
 import UnPublishButton from "./_components/unpublish-button";
-import DeleteProduct from "./_components/delete-product";
-import {notFound} from "next/navigation";
-import {getCategories} from "@/lib/get-category";
-import {formatCategory} from "@/lib/format-category";
+import InitialProductStock from "./_components/initial-product-stock";
 
 type Props = {
   params: {
@@ -22,7 +24,7 @@ type Props = {
   };
 };
 async function ProductIdPage({params: {dashboardId, productId}}: Props) {
-  const product = await getProduct(dashboardId, productId);
+  const product: Product = await getProduct(dashboardId, productId);
   const categories = await formatCategory();
 
   if (!product || product === undefined) {
@@ -81,11 +83,13 @@ async function ProductIdPage({params: {dashboardId, productId}}: Props) {
               category={product.category}
               categories={categories}
             />
+            <InitialProductInventory inventory={product.inventory} />
           </div>
           <div>
             <InitialProductImage images={product.images} />
             <IntialProductSubCategory subCategories={product.subCategorys} />
             <InitialProductColors colors={product.colors} />
+            <InitialProductStock inStock={product.inStock} />
           </div>
         </div>
       </div>

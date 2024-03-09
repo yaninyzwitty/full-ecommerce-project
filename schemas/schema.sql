@@ -15,6 +15,11 @@ CREATE CUSTOM INDEX by_user_id ON sellers (user_id) USING 'StorageAttachedIndex'
 
 CREATE CUSTOM INDEX by_stores_id ON product_by_seller (store_id) USING 'StorageAttachedIndex';
 
+ALTER TABLE
+    product_by_seller
+ADD
+    inventory INT;
+
 CREATE TABLE product_by_seller (
     product_id UUID PRIMARY KEY,
     name TEXT,
@@ -67,3 +72,19 @@ ALTER TABLE
     category_by_seller
 ADD
     store_id TEXT;
+
+ALTER TABLE
+    product_by_seller
+ADD
+    stock_level TEXT;
+
+CREATE TABLE seller_location (
+    seller_id TEXT PRIMARY KEY,
+    seller_name TEXT,
+    city TEXT,
+    state TEXT,
+    country TEXT,
+    zip_code TEXT,
+    latitude DOUBLE,
+    longitude DOUBLE
+);

@@ -56,14 +56,6 @@ function Sidebar() {
       isCollapsible: false,
       active: pathname === `/dashboard/${params.dashboardId}/orders`,
     },
-
-    {
-      name: "Inventory",
-      href: `/dashboard/${params.dashboardId}/inventory`,
-      icon: Ticket,
-      isCollapsible: false,
-      active: pathname === `/dashboard/${params.dashboardId}/inventory`,
-    },
   ];
   return (
     <aside className="pt-14 h-full fixed left-0 z-40 bg-white/80 border-r border-gray-300  w-[70px] lg:w-60 ">

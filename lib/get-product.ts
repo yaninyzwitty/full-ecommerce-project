@@ -6,6 +6,7 @@ export const getProduct = async (dashboardId: string, productId: string) =>  {
     try {
 
 
+
         // check if data in cache
 
 
@@ -32,21 +33,23 @@ export const getProduct = async (dashboardId: string, productId: string) =>  {
             storeId: row.store_id,
             price: parseFloat(row.price),
             isPublished: row.is_published,
+            inventory: row.inventory,
             category: row.category,
             subCategorys: row.subcategorys,
             colors: row.colors,
             size: row.size,
             images: row.images,
-            inStock: row.inStock,
+            inStock: row.stock_level,
             availablity: row.availablity,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
 
         })).find((store ) => store.storeId === dashboardId);
+
         // return data as Product;
 
         if(data) {
-            await redis.set(`product:${productId}`, JSON.stringify(data), 'EX', 3600);
+            await redis.set(`product:${productId}`, JSON.stringify(data), 'EX', 4060);
     return data as Product;
 
         }
@@ -75,7 +78,7 @@ export const getProductsByStoreId = async (storeId: string) => {
 
         // try getting cached data;
         const cachedData = await redis.get(`products:${storeId}`);
-
+        
         if (cachedData) {
             return JSON.parse(cachedData);
         } else {
@@ -92,17 +95,20 @@ export const getProductsByStoreId = async (storeId: string) => {
             storeId: row.store_id,
             price: parseFloat(row.price),
             isPublished: row.is_published,
+            inStock: row.stock_level,
+            // stockLevel: row.stock_level, 
             category: row.category,
             subCategorys: row.subcategorys,
             colors: row.colors,
+            inventory: row.inventory,
             size: row.size,
             images: row.images,
-            inStock: row.inStock,
             availablity: row.availablity,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
 
         })) as Product[];
+
 
         await redis.set(`products:${storeId}`, JSON.stringify(data), 'EX', 3600);
 
@@ -152,7 +158,7 @@ export const getAllProducts = async () => {
             colors: row.colors,
             size: row.size,
             images: row.images,
-            inStock: row.inStock,
+            inStock: row.stock_level,
             availablity: row.availablity,
             createdAt: row.created_at,
             updatedAt: row.updated_at,
@@ -161,10 +167,6 @@ export const getAllProducts = async () => {
         })) as Product[];
 
         await redis.set(`all-products`, JSON.stringify(data), 'EX', 60);
-
-
-
-
 
     }
 

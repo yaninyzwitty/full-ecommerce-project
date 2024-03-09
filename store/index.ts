@@ -17,6 +17,12 @@ type ThumbnailModalProps = {
     index: number;
 
 }
+type LocationProps = {
+    open: boolean;
+    onOpen: () => void;
+    onClose: () => void;
+
+}
 
 
 
@@ -48,6 +54,12 @@ export const useComboStore = create<ComboProps>((set) => ({
     open: false,
     userId: '',
     onOpen: (userId) => set({ open: true, userId  }),
+    onClose: () => set({ open: false })
+}));
+
+export const useLocationStore = create<LocationProps>((set) => ({
+    open: false,
+    onOpen: () => set({ open: true   }),
     onClose: () => set({ open: false })
 }));
 

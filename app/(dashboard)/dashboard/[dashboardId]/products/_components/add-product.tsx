@@ -6,11 +6,12 @@ import Link from "next/link";
 
 type Props = {
   dashboardId: string;
+  has_no_location: boolean;
 };
-function AddProduct({dashboardId}: Props) {
+function AddProduct({dashboardId, has_no_location}: Props) {
   // const {onOpen} = useProductModal();
   return (
-    <Button>
+    <Button disabled={has_no_location}>
       <Link href={`/dashboard/${dashboardId}/products/add`}>Add Product</Link>
     </Button>
   );

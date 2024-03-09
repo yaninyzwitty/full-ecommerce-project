@@ -64,7 +64,12 @@ export const columns: ColumnDef<ProductTableData>[] = [
   },
   {
     accessorKey: "category",
-    header: () => <div className="">Category</div>,
+    header: () => <div className="hidden lg:block">Category</div>,
+    cell: ({row}) => {
+      const category: string = row.getValue("category");
+
+      return <div className="hidden lg:block">{category}</div>;
+    },
   },
   {
     accessorKey: "createdAt",
@@ -85,6 +90,23 @@ export const columns: ColumnDef<ProductTableData>[] = [
       return (
         <div className="hidden lg:block">{isPublished ? "True" : "False"}</div>
       );
+    },
+  },
+
+  {
+    accessorKey: "inventory",
+    header: () => <div className="hidden md:block">Inventory</div>,
+    cell: ({row}) => {
+      const inventory: string = row.getValue("inventory");
+      return <div className="hidden md:block">{inventory}</div>;
+    },
+  },
+  {
+    accessorKey: "inStock",
+    header: () => <div className=" hidden lg:block">Stock level</div>,
+    cell: ({row}) => {
+      const stock_level: string = row.getValue("inStock");
+      return <div className="hidden lg:block">{stock_level}</div>;
     },
   },
   {

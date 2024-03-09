@@ -122,7 +122,7 @@ export const getAllCategories = async () => {
                 updatedAt: row.updated_at,
     
             })) as Category[];
-            await redis.set(`categories`, JSON.stringify(results), 'EX', 3600);
+            await redis.set(`all-categories`, JSON.stringify(results), 'EX', 3600);
             return results;
 
 
@@ -138,4 +138,25 @@ export const getAllCategories = async () => {
     }
 
 
+}
+
+
+
+
+
+export const getStoreDetailsById = async (storeId: string) => {
+    try {
+
+        const GET_STORE_DETAILS_BY_ID = `SELECT name FROM sellers WHERE store_id = ?`;
+        const params = [storeId]
+        const res = await cassandraDb.execute(GET_STORE_DETAILS_BY_ID, params, { prepare: true });
+        return res.rows[0];
+        
+    } catch (error: any) {
+        console.log(`get_store_details_by_id`, error);
+        throw new Error(error.message) ;
+
+    
+        
+    }
 }

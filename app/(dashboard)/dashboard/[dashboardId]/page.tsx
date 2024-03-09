@@ -1,10 +1,18 @@
-function DashboardIdPage() {
+import {getSellerLoaction} from "@/lib/get-seller-location";
+import LocationError from "./_components/location-error";
+
+type Props = {
+  params: {
+    dashboardId: string;
+  };
+};
+async function DashboardIdPage({params}: Props) {
+  const location = await getSellerLoaction(params.dashboardId);
+
   return (
-    <div className="pt-20 mb-4 pl-[70px] h-[650px] lg:pl-64 bg-emerald-500/15 flex-1 rounded-md mt-6 ml-6">
-      <div className="max-w-7xl mx-5  lg:mx-auto bg-green-500 flex items-center justify-between  ">
-        ww
-        <span>hello</span>
-      </div>
+    <div className="pt-14 pl-[70px] lg:pl-60  flex-1 ">
+      {!location || (location.length === 0 && <LocationError />)}
+      <div className="m-2">Get started here</div>
     </div>
   );
 }

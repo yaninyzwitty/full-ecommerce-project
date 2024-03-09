@@ -81,3 +81,28 @@ export const CategoryNameSchema = z.object({
     })
 
   })
+
+
+  export const FormSchema = z.object({
+    country: z.string({
+      required_error: "Please select a country.",
+    }),
+    cityData: z.string({
+      required_error: "Please select a state.",
+    }),
+  
+    city: z.string({
+      required_error: "Please select a city.",
+    }),
+  });
+
+
+  export const ProductInventorySchema = z.object({
+    inventory: z.number()
+  })
+
+  export const ProductStockSchema = z.object({
+    inStock: z.string()
+  })
+
+

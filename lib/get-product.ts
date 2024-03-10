@@ -1,6 +1,7 @@
 import cassandraDb from "@/db";
 import { redis } from "@/redis";
 import { Product } from "@/schemas/typings";
+import { ClipboardXIcon } from "lucide-react";
 
 export const getProduct = async (dashboardId: string, productId: string) =>  {
     try {
@@ -111,7 +112,7 @@ export const getProductsByStoreId = async (storeId: string) => {
 
 
         await redis.set(`products:${storeId}`, JSON.stringify(data), 'EX', 3600);
-
+// clorox, tresseme, swiffer
 
 
 

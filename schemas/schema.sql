@@ -88,3 +88,51 @@ CREATE TABLE seller_location (
     latitude DOUBLE,
     longitude DOUBLE
 );
+
+CREATE TABLE IF NOT EXISTS category_by_seller (
+    categoryid uuid PRIMARY KEY,
+    category_tags
+    set
+        < text >,
+        category_thumnail text,
+        created_at timestamp,
+        description text,
+        ispublished boolean,
+        name text,
+        starred_categories
+    set
+        < text >,
+        store_id text,
+        updated_at timestamp
+);
+
+CREATE CUSTOM INDEX by_storeid ON shopsphere.category_by_seller (store_id) USING 'StorageAttachedIndex';
+
+CREATE TABLE IF NOT EXISTS product_by_seller (
+    product_id uuid PRIMARY KEY,
+    availability map < text,
+    int >,
+    category text,
+    colors
+    set
+        < text >,
+        created_at timestamp,
+        description text,
+        images
+    set
+        < text >,
+        in_stock boolean,
+        inventory int,
+        is_published boolean,
+        name text,
+        price decimal,
+        size text,
+        stock_level text,
+        store_id text,
+        subcategorys
+    set
+        < text >,
+        updated_at timestamp
+);
+
+CREATE CUSTOM INDEX by_stores_id ON shopsphere.product_by_seller (store_id) USING 'StorageAttachedIndex';

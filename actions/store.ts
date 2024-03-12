@@ -1,7 +1,8 @@
 "use server";
 
 import cassandraDb from "@/db";
-import { formSchema } from "@/schemas";
+import { redis } from "@/redis";
+import { StoreDescriptionSchema, StoreNameSchema, formSchema } from "@/schemas";
 import { auth } from "@clerk/nextjs";
 import { nanoid } from 'nanoid';
 
@@ -65,11 +66,15 @@ export async function changeStoreName (name: string, id: string, storeId: string
             };
 
 
-            const UPDATE_QUERY = `UPDATE sellers SET name = ? WHERE id = ?`;
-            const params = [name, id];
+            const UPDATE_QUERY = `UPDATE sellers SET name = ?, updated_at = ?  WHERE id = ?`;
+            const params = [name, new Date(), id];
             await cassandraDb.execute(UPDATE_QUERY, params, { prepare: true });
 
+            await redis.del(`store-id-${storeId}`);
+            await redis.del(`store-details-${storeId}`);
+
             revalidatePath(`/dashboard/${storeId}`);
+            revalidatePath(`/dashboard/${storeId}/settings`);
             return {
                 success: `Store name updated to '${name}`,
             }
@@ -85,3 +90,128 @@ export async function changeStoreName (name: string, id: string, storeId: string
 
 
 }
+
+
+
+export const onUpdateStoreName = async (values: z.infer<typeof StoreNameSchema>, storeId: string) => {
+    try {
+
+        const validatedFields = StoreNameSchema.safeParse(values);
+
+        if(!validatedFields.success) {
+            return {
+                error: "Invalid fields"
+            }
+        };
+
+
+        const UPDATE_QUERY = `UPDATE sellers SET name = ?, updated_at = ?  WHERE id = ?`;
+        const params = [values.storeName, new Date(),  storeId];
+        await cassandraDb.execute(UPDATE_QUERY, params, { prepare: true });
+        await redis.del(`store-id-${storeId}`);
+        await redis.del(`store-details-${storeId}`);
+
+
+        revalidatePath(`/dashboard/${storeId}/settings`);
+
+        return {
+            success: `Store name updated to '${values.storeName}`,
+        
+        }
+
+
+
+        
+    } catch (error) {
+        console.log(error)
+
+        return {
+            error: "Something went wrong!"
+        }
+        
+    }
+    
+}
+export const onUpdateStoreDesc = async (values: z.infer<typeof StoreDescriptionSchema>, storeId: string) => {
+    try {
+
+        const validatedFields = StoreDescriptionSchema.safeParse(values);
+
+        if(!validatedFields.success) {
+            return {
+                error: "Invalid fields"
+            }
+        };
+
+
+        const UPDATE_QUERY = `UPDATE sellers SET description = ?, updated_at = ?  WHERE id = ?`;
+        const params = [values.storeDesc, new Date(),  storeId];
+        await cassandraDb.execute(UPDATE_QUERY, params, { prepare: true });
+        await redis.del(`store-id-${storeId}`);
+        await redis.del(`store-details-${storeId}`);
+
+
+        revalidatePath(`/dashboard/${storeId}/settings`);
+
+        return {
+            success: `Store description updated to '${values.storeDesc}`,
+        
+        }
+
+
+
+        
+    } catch (error) {
+        console.log(error)
+
+        return {
+            error: "Something went wrong!"
+        }
+        
+    }
+    
+}
+// export const onUpdateStoreDesc = async ( values: z.infer<typeof StoreDescriptionSchema>, storeId: string) => {
+//     try {
+
+//         const validatedFields = StoreDescriptionSchema.safeParse(values)
+
+
+//         if(!validatedFields.success) {
+//             return {
+//                 error: "Invalid fields"
+//             }
+//         };
+
+       
+
+
+//         const UPDATE_QUERY = `UPDATE sellers SET description = ?, updated_at = ?  WHERE id = ?`;
+//         const params = [values.storeDesc, Date.now(), storeId];
+//         await cassandraDb.execute(UPDATE_QUERY, params, { prepare: true });
+
+
+//         await redis.del(`store-id-${storeId}`);
+//         await redis.del(`store-details-${storeId}`);
+
+//         revalidatePath(`/dashboard/${storeId}/settings`);
+//         return {
+//             success: `Store description updated to succesfully`,
+
+        
+//         }
+
+
+
+
+        
+//     } catch (error) {
+//         console.log(error)
+
+//         return {
+//             error: "Something went wrong!"
+//         }
+        
+//     }
+    
+// }

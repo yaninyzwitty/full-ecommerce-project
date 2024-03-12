@@ -1,7 +1,6 @@
 import cassandraDb from "@/db";
 import { redis } from "@/redis";
 import { Product } from "@/schemas/typings";
-import { ClipboardXIcon } from "lucide-react";
 
 export const getProduct = async (dashboardId: string, productId: string) =>  {
     try {

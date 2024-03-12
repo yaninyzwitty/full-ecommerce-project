@@ -136,3 +136,16 @@ CREATE TABLE IF NOT EXISTS product_by_seller (
 );
 
 CREATE CUSTOM INDEX by_stores_id ON shopsphere.product_by_seller (store_id) USING 'StorageAttachedIndex';
+
+CREATE TABLE IF NOT EXISTS sellers (
+    id uuid PRIMARY KEY,
+    created_at timestamp,
+    description text,
+    name text,
+    store_id text,
+    updated_at timestamp,
+    user_id text,
+    banner text,
+);
+
+CREATE CUSTOM INDEX by_store_id ON shopsphere.sellers (store_id) USING 'StorageAttachedIndex';

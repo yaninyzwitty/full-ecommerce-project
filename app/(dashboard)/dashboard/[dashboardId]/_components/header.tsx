@@ -9,7 +9,7 @@ import {UserButton} from "@clerk/nextjs";
 import {Bell, Menu} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import {FormEvent, useState, useTransition} from "react";
+import {FormEvent, useEffect, useState, useTransition} from "react";
 import {toast} from "sonner";
 
 type Props = {
@@ -17,9 +17,15 @@ type Props = {
 };
 
 function Header({store}: Props) {
-  const [value, setValue] = useState<string>(store.name || "");
+  const [isMounted, setIsMounted] = useState(false);
+
+  const [value, setValue] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,6 +53,10 @@ function Header({store}: Props) {
     setIsEditing((editing) => !editing);
   };
   const [hexCode1, hexCode2] = generateColors(store.storeId, store.userId);
+
+  if (!isMounted) {
+    return null;
+  }
   return (
     <header className="h-14 p-5 bg-white border  top-0 fixed w-full z-50 flex items-center justify-between">
       <div className="flex space-x-5 items-center">

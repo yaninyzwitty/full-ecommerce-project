@@ -98,3 +98,15 @@ export type SellerLocation = {
     latitude: number;
     longitude: number;
 }
+
+
+export type Store = {
+    id: string;
+    createdAt: Date | string;
+    updatedAt: Date | string;
+    description: string
+    name: string;
+    storeId: string;
+    userId :string;
+    banner: string;
+};

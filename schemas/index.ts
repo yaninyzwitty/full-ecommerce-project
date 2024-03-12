@@ -106,3 +106,11 @@ export const CategoryNameSchema = z.object({
   })
 
 
+
+
+  export const StoreNameSchema = z.object({
+    storeName: z.string().min(2).max(50)
+  })
+  export const StoreDescriptionSchema = z.object({
+    storeDesc: z.string().min(2).max(500)
+  })

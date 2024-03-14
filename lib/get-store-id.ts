@@ -37,11 +37,11 @@ export const getStoreId = async (storeId: string) => {
 export const getStoreDetails = async (storeId: string) => {
     try {
 
-        const cachedData = await redis.get(`store-details-${storeId}`);
-        if(cachedData) {
-            return JSON.parse(cachedData);
+        const cachedData = await redis.get(`cached-details-${storeId}`);
+        // if(cachedData) {
+        //     return JSON.parse(cachedData);
 
-        } else {
+        // } else {
 
             const GET_STORE_ID_QUERY = `SELECT * FROM sellers WHERE store_id = ?`;
             const params = [storeId];
@@ -54,14 +54,15 @@ export const getStoreDetails = async (storeId: string) => {
                 description: row.description,
                 name: row.name,
                 storeId: row.store_id,
+                allowNotif: row.allow_notif,
                 userId: row.user_id,
                 banner: row.banner
     
             })) as Store[]
-            await redis.set(`store-details-${storeId}`, JSON.stringify(result[0]), 'EX', 2400);
+            await redis.set(`cached-details-${storeId}`, JSON.stringify(result[0]), 'EX', 2400);
     
             return result?.[0];
-        }
+        // }
 
 
 

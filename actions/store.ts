@@ -2,7 +2,7 @@
 
 import cassandraDb from "@/db";
 import { redis } from "@/redis";
-import { StoreDescriptionSchema, StoreNameSchema, formSchema } from "@/schemas";
+import { AllowNotifSchema, StoreBannerSchema, StoreDescriptionSchema, StoreNameSchema, formSchema } from "@/schemas";
 import { auth } from "@clerk/nextjs";
 import { nanoid } from 'nanoid';
 
@@ -108,8 +108,8 @@ export const onUpdateStoreName = async (values: z.infer<typeof StoreNameSchema>,
         const UPDATE_QUERY = `UPDATE sellers SET name = ?, updated_at = ?  WHERE id = ?`;
         const params = [values.storeName, new Date(),  storeId];
         await cassandraDb.execute(UPDATE_QUERY, params, { prepare: true });
-        await redis.del(`store-id-${storeId}`);
-        await redis.del(`store-details-${storeId}`);
+        // await redis.del(`store-id-${storeId}`);
+        await redis.del(`cached-details-${storeId}`);
 
 
         revalidatePath(`/dashboard/${storeId}/settings`);
@@ -148,7 +148,7 @@ export const onUpdateStoreDesc = async (values: z.infer<typeof StoreDescriptionS
         const params = [values.storeDesc, new Date(),  storeId];
         await cassandraDb.execute(UPDATE_QUERY, params, { prepare: true });
         await redis.del(`store-id-${storeId}`);
-        await redis.del(`store-details-${storeId}`);
+        await redis.del(`cached-details-${storeId}`);
 
 
         revalidatePath(`/dashboard/${storeId}/settings`);
@@ -171,47 +171,89 @@ export const onUpdateStoreDesc = async (values: z.infer<typeof StoreDescriptionS
     }
     
 }
-// export const onUpdateStoreDesc = async ( values: z.infer<typeof StoreDescriptionSchema>, storeId: string) => {
-//     try {
 
-//         const validatedFields = StoreDescriptionSchema.safeParse(values)
+export const onUpdateStoreBannerImage = async (values: z.infer<typeof StoreBannerSchema>, storeId: string) => {
+    try {
 
+        const validatedFields = StoreBannerSchema.safeParse(values);
 
-//         if(!validatedFields.success) {
-//             return {
-//                 error: "Invalid fields"
-//             }
-//         };
-
-       
+        if(!validatedFields.success) {
+            return {
+                error: "Invalid fields"
+            }
+        };
 
 
-//         const UPDATE_QUERY = `UPDATE sellers SET description = ?, updated_at = ?  WHERE id = ?`;
-//         const params = [values.storeDesc, Date.now(), storeId];
-//         await cassandraDb.execute(UPDATE_QUERY, params, { prepare: true });
+        const UPDATE_QUERY = `UPDATE sellers SET banner = ?, updated_at = ?  WHERE id = ?`;
+        const params = [values.storeImage, new Date(),  storeId];
+        await cassandraDb.execute(UPDATE_QUERY, params, { prepare: true });
+        await redis.del(`store-id-${storeId}`);
+        await redis.del(`cached-details-${storeId}`);
 
 
-//         await redis.del(`store-id-${storeId}`);
-//         await redis.del(`store-details-${storeId}`);
+        revalidatePath(`/dashboard/${storeId}/settings`);
 
-//         revalidatePath(`/dashboard/${storeId}/settings`);
-//         return {
-//             success: `Store description updated to succesfully`,
-
+        return {
+            success: `Store image updated to '${values.storeImage}`,
         
-//         }
-
+        }
 
 
 
         
-//     } catch (error) {
-//         console.log(error)
+    } catch (error) {
+        console.log(error)
 
-//         return {
-//             error: "Something went wrong!"
-//         }
+        return {
+            error: "Something went wrong!"
+        }
         
-//     }
+    }
     
-// }
+}
+
+
+
+export const onAllowNotif = async (data: z.infer<typeof AllowNotifSchema>, storeId: string ) => {
+    try {
+
+        const validatedFields = AllowNotifSchema.safeParse(data);
+        if(!validatedFields.success) {
+            return {
+                error: "Invalid fields"
+            }
+        };
+
+
+        const { enableMessages } = validatedFields.data;
+
+        const UPDATE_QUERY = `UPDATE sellers SET allow_notif = ?, updated_at = ?  WHERE id = ?`;
+        const params = [enableMessages, new Date(),  storeId];
+
+        await cassandraDb.execute(UPDATE_QUERY, params, { prepare: true });
+        await redis.del(`store-id-${storeId}`);
+        await redis.del(`cached-details-${storeId}`);
+
+        revalidatePath(`/dashboard/${storeId}/settings`);
+
+        return {
+            success: "Enabled messages successfully"
+        }
+
+
+
+
+
+
+
+        
+
+    } catch (error) {
+        console.log(error )
+
+            return {
+                error: "Something went wrong"
+            }
+        
+    }
+}

@@ -61,7 +61,7 @@ function GeneralStoreDescription({storeId, initialDescription}: Props) {
           if (data?.success) {
             setIsEditing(false);
             form.reset();
-            toast.success(data.success);
+            toast.success("Product updated succesfully!");
           }
         })
         .catch(() => toast.error("Something went wrong!"));

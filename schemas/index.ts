@@ -114,3 +114,11 @@ export const CategoryNameSchema = z.object({
   export const StoreDescriptionSchema = z.object({
     storeDesc: z.string().min(2).max(500)
   })
+  export const StoreBannerSchema = z.object({
+    storeImage: z.string()
+  })
+
+  export const AllowNotifSchema = z.object({
+    enableMessages: z.boolean().default(false).optional(),
+  });
+  

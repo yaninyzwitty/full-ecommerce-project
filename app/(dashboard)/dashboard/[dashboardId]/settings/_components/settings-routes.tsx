@@ -72,7 +72,7 @@ function SettingsRoutes({dashboardId}: {dashboardId: string}) {
       </div>
       {routes.map((route, idx) => (
         <Link
-          key={route.href}
+          key={route.name}
           href={{
             pathname: route.href,
             query: {path: route.name.toString()},

@@ -106,6 +106,7 @@ export type Store = {
     updatedAt: Date | string;
     description: string
     name: string;
+    allowNotif: boolean;
     storeId: string;
     userId :string;
     banner: string;

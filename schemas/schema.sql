@@ -146,6 +146,7 @@ CREATE TABLE IF NOT EXISTS sellers (
     updated_at timestamp,
     user_id text,
     banner text,
+    allow_notif boolean,
 );
 
 CREATE CUSTOM INDEX by_store_id ON shopsphere.sellers (store_id) USING 'StorageAttachedIndex';
